@@ -1,0 +1,14 @@
+{
+  "ravi": {
+    "name": "Ravi Kumar",
+    "age": 25,
+    "annual_income": 180000,
+    "state": "Uttar Pradesh"
+  },
+  "meena": {
+    "name": "Meena Devi",
+    "age": 62,
+    "annual_income": 700000,
+    "state": "Rajasthan"
+  }
+}
