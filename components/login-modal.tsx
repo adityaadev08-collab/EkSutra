@@ -1,15 +1,17 @@
 'use client'
 
 // =============================================================================
-// components/login-modal.tsx — 1-Click "Sign in with Google" Citizen Modal
+// components/login-modal.tsx — 1-Click "Continue with DigiLocker" Citizen Modal
 // =============================================================================
 // WHY HERE: 
-//   Replaces manual form login with a 1-click Google OAuth trigger powered
-//   by @supabase/supabase-js, with an optional quick-test fallback for reviews.
+//   Triggers citizen OAuth sign-in via @supabase/supabase-js using Google as
+//   the DigiLocker presentation stand-in.
+//   After successful redirect, auth-context picks up the session and creates
+//   the citizen profile automatically.
 // =============================================================================
 
 import { useState } from 'react'
-import { X, Loader2, AlertCircle, ShieldCheck, ChevronDown, User } from 'lucide-react'
+import { X, Loader2, AlertCircle, ShieldCheck } from 'lucide-react'
 import { useAuth } from '@/context/auth-context'
 
 function GoogleIcon({ className = "size-5" }: { className?: string }) {
@@ -36,10 +38,9 @@ function GoogleIcon({ className = "size-5" }: { className?: string }) {
 }
 
 export function LoginModal() {
-  const { isLoginModalOpen, closeLoginModal, signInWithGoogle, loginWithMock } = useAuth()
+  const { isLoginModalOpen, closeLoginModal, signInWithGoogle } = useAuth()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-  const [showMockOptions, setShowMockOptions] = useState(false)
 
   if (!isLoginModalOpen) return null
 
@@ -50,16 +51,8 @@ export function LoginModal() {
       await signInWithGoogle()
     } catch (err: unknown) {
       setIsGoogleLoading(false)
-      const message = err instanceof Error ? err.message : 'Google sign in failed'
+      const message = err instanceof Error ? err.message : 'Authentication failed'
       setErrorMessage(message)
-    }
-  }
-
-  const handleQuickSelect = async (username: string) => {
-    setErrorMessage(null)
-    const result = await loginWithMock(username)
-    if (!result.success) {
-      setErrorMessage(result.error || 'Login failed')
     }
   }
 
@@ -90,42 +83,53 @@ export function LoginModal() {
           </span>
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#c27717]">
-              Single Sign-On
+              National SSO
             </p>
             <h2 className="font-serif text-2xl font-semibold tracking-tight text-[#152d4d]">
-              Sign in to EkSutra
+              Sign in with DigiLocker
             </h2>
           </div>
         </div>
 
         <p className="mt-3 text-xs leading-5 text-[#718095]">
-          Connect securely via Google. EkSutra will automatically create your citizen profile and calculate your government scheme eligibility.
+          Connect securely via DigiLocker. EkSutra will automatically verify your citizen credentials and calculate your eligible government schemes.
         </p>
 
-        {/* Primary Action: 1-Click Sign in with Google */}
+        {/* Primary Action: Continue with DigiLocker */}
         <div className="mt-6 flex flex-col gap-3">
           <button
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isGoogleLoading}
-            className="group relative flex h-13 w-full items-center justify-center gap-3 rounded-2xl border border-[#152d4d]/15 bg-white px-5 text-sm font-semibold text-[#152d4d] shadow-[0_8px_20px_rgba(21,45,77,0.06)] transition hover:-translate-y-0.5 hover:bg-zinc-50 hover:shadow-[0_12px_28px_rgba(21,45,77,0.12)] disabled:cursor-wait disabled:opacity-60"
+            className="group relative flex h-13 w-full items-center justify-center gap-3 rounded-2xl bg-[#152d4d] px-5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(21,45,77,0.18)] transition hover:-translate-y-0.5 hover:bg-[#23466f] hover:shadow-[0_12px_28px_rgba(21,45,77,0.26)] disabled:cursor-wait disabled:opacity-60"
           >
             {isGoogleLoading ? (
               <>
-                <Loader2 className="size-5 animate-spin text-[#c27717]" />
-                <span>Redirecting to Google...</span>
+                <Loader2 className="size-5 animate-spin text-[#e8a243]" />
+                <span>Connecting to DigiLocker...</span>
               </>
             ) : (
               <>
-                <GoogleIcon className="size-5 transition group-hover:scale-110" />
-                <span>Sign in with Google</span>
+                <ShieldCheck className="size-5 text-[#e8a243] transition group-hover:scale-110" />
+                <span>Continue with DigiLocker</span>
               </>
             )}
           </button>
 
+          {/* Secondary 1-Click Google OAuth Trigger */}
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isGoogleLoading}
+            className="group relative flex h-12 w-full items-center justify-center gap-3 rounded-2xl border border-[#152d4d]/15 bg-white px-5 text-xs font-semibold text-[#152d4d] shadow-[0_4px_12px_rgba(21,45,77,0.05)] transition hover:-translate-y-0.5 hover:bg-zinc-50 disabled:cursor-wait disabled:opacity-60"
+          >
+            <GoogleIcon className="size-4 transition group-hover:scale-110" />
+            <span>Sign in directly with Google</span>
+          </button>
+
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#8090a0]">
             <ShieldCheck className="size-3.5 text-[#287254]" />
-            <span>Authenticated via Supabase Google OAuth</span>
+            <span>Authenticated via Supabase OAuth (DigiLocker stand-in)</span>
           </div>
         </div>
 
@@ -135,52 +139,6 @@ export function LoginModal() {
             <span>{errorMessage}</span>
           </div>
         )}
-
-        {/* Collapsible Viva Reviewer Testing Options */}
-        <div className="mt-6 border-t border-[#152d4d]/10 pt-4">
-          <button
-            type="button"
-            onClick={() => setShowMockOptions(!showMockOptions)}
-            className="flex w-full items-center justify-between text-left text-xs font-semibold text-[#8090a0] hover:text-[#152d4d]"
-          >
-            <span>Reviewer Demo Fallback (Ravi / Meena)</span>
-            <ChevronDown
-              className={`size-4 transition-transform ${showMockOptions ? 'rotate-180' : ''}`}
-            />
-          </button>
-
-          {showMockOptions && (
-            <div className="mt-3 flex flex-col gap-2 animate-in fade-in duration-150">
-              <button
-                type="button"
-                onClick={() => handleQuickSelect('ravi')}
-                className="flex items-center justify-between rounded-xl border border-[#152d4d]/10 bg-[#f7f8f5] px-3.5 py-2 text-left text-xs font-medium text-[#152d4d] transition hover:bg-white"
-              >
-                <div>
-                  <span className="font-semibold text-[#152d4d]">Ravi Kumar</span>
-                  <span className="ml-2 text-[11px] text-[#718095]">Age 25 · ₹1.8L income</span>
-                </div>
-                <span className="rounded-full bg-[#e1f1e9] px-2 py-0.5 text-[10px] font-bold text-[#287254]">
-                  Demo
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickSelect('meena')}
-                className="flex items-center justify-between rounded-xl border border-[#152d4d]/10 bg-[#f7f8f5] px-3.5 py-2 text-left text-xs font-medium text-[#152d4d] transition hover:bg-white"
-              >
-                <div>
-                  <span className="font-semibold text-[#152d4d]">Meena Devi</span>
-                  <span className="ml-2 text-[11px] text-[#718095]">Age 62 · ₹7.0L income</span>
-                </div>
-                <span className="rounded-full bg-[#dfe8f4] px-2 py-0.5 text-[10px] font-bold text-[#152d4d]">
-                  Demo
-                </span>
-              </button>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   )

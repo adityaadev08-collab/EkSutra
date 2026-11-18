@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '../lib/supabase'; // Ensure this points to your Supabase client file
+import { supabase } from '@/lib/supabase'; // Ensure this points to your Supabase client file
 
 export default function MockDigiLockerLogin() {
   const [loading, setLoading] = useState(false);

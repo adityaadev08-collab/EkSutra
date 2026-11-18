@@ -156,10 +156,10 @@ function SchemeCard({
 
       <div className="mt-4 border-t border-[#152d4d]/8 pt-3">
         <div className="mb-2 flex items-center justify-between text-[11px] text-[#8090a0]">
-          {service.min_age !== undefined && (
+          {service.min_age != null && (
             <span>Min Age: {service.min_age} yrs</span>
           )}
-          {service.max_income !== undefined && (
+          {service.max_income != null && (
             <span>Max Inc: ₹{service.max_income.toLocaleString('en-IN')}</span>
           )}
           {service.eta && (
@@ -536,7 +536,7 @@ export function DashboardClient({
               onClick={openLoginModal}
               className="rounded-full bg-[#152d4d] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#152d4d]/15 transition hover:bg-[#23466f]"
             >
-              Sign in with Google
+              Continue with DigiLocker
             </button>
           )}
 
@@ -580,7 +580,7 @@ export function DashboardClient({
               }}
               className="text-left font-semibold text-[#152d4d]"
             >
-              Sign in with Google
+              Continue with DigiLocker
             </button>
           )}
         </div>
@@ -599,15 +599,28 @@ export function DashboardClient({
               service.
             </h1>
             <p className="mt-5 max-w-[520px] text-base leading-7 text-[#718095]">
-              Welcome back,{' '}
-              <strong className="font-semibold text-[#152d4d]">
-                {user ? user.name : 'Citizen'}
-              </strong>
-              . {isProfileComplete
+              {user ? (
+                <>
+                  Welcome back,{' '}
+                  <strong className="font-semibold text-[#152d4d]">
+                    {user.name}
+                  </strong>
+                  .
+                </>
+              ) : (
+                <>
+                  Welcome,{' '}
+                  <strong className="font-semibold text-[#152d4d]">
+                    Guest Citizen
+                  </strong>
+                  .
+                </>
+              )}{' '}
+              {isProfileComplete
                 ? `You qualify for ${totalEligibleDbCount.toLocaleString('en-IN')} government schemes based on your profile (${user.age} yrs, ₹${user.annual_income.toLocaleString('en-IN')}/yr).`
                 : user
                 ? 'Please complete your demographics to calculate your personal welfare eligibility.'
-                : 'Sign in with your Google account to automatically evaluate your scheme entitlements.'}
+                : 'Sign in with DigiLocker to automatically evaluate your scheme entitlements.'}
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs text-[#718095]">
@@ -641,7 +654,7 @@ export function DashboardClient({
                     ) : user ? (
                       <span className="text-amber-300">Profile incomplete — click to add age & income</span>
                     ) : (
-                      'Sign in with Google to view scheme eligibility'
+                      'Sign in with DigiLocker to view scheme eligibility'
                     )}
                   </p>
                 </div>
@@ -657,10 +670,10 @@ export function DashboardClient({
                 ) : (
                   <button
                     onClick={user ? openOnboardingModal : openLoginModal}
-                    title={user ? 'Edit Profile' : 'Sign in with Google'}
+                    title={user ? 'Edit Profile' : 'Sign in with DigiLocker'}
                     className="flex size-12 items-center justify-center rounded-2xl bg-[#e8a243] font-serif text-lg text-[#152d4d] shadow-md transition hover:scale-105"
                   >
-                    {user ? user.initials : <UserIcon className="size-6 text-[#152d4d]" />}
+                    {user ? user.initials : 'GC'}
                   </button>
                 )}
               </div>
@@ -707,7 +720,7 @@ export function DashboardClient({
                     onClick={openLoginModal}
                     className="rounded-full bg-[#e8a243] px-3.5 py-1.5 text-xs font-semibold text-[#152d4d] shadow transition hover:bg-[#d8902d]"
                   >
-                    Sign in with Google
+                    Continue with DigiLocker
                   </button>
                 )}
               </div>
@@ -844,7 +857,7 @@ export function DashboardClient({
                 onClick={openLoginModal}
                 className="flex items-center gap-1.5 text-xs font-semibold text-[#c27717] hover:underline"
               >
-                Sign in with Google to filter by your eligibility <ArrowUpRight className="size-3.5" />
+                Sign in via DigiLocker to filter by your eligibility <ArrowUpRight className="size-3.5" />
               </button>
             )}
           </div>
@@ -956,7 +969,7 @@ export function DashboardClient({
             All Schemes
           </Link>
           <button onClick={openLoginModal} className="hover:underline">
-            {user ? 'Switch Account' : 'Sign in with Google'}
+            {user ? 'Switch Account' : 'Sign in with DigiLocker'}
           </button>
         </div>
       </footer>
